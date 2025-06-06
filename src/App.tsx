@@ -1,11 +1,14 @@
 import React from 'react';
 import { AppRouter } from './routes/AppRouter';
 import { LanguageProvider } from './contexts/LanguageContext';
+import { AuthProvider } from './contexts/AuthContext';
 
 function App() {
   return (
     <LanguageProvider>
-      <AppRouter />
+      <AuthProvider>
+        <AppRouter />
+      </AuthProvider>
     </LanguageProvider>
   );
 }

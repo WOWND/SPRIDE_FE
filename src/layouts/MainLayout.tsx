@@ -3,13 +3,18 @@ import { Outlet } from 'react-router-dom';
 import LanguageSelector from '../components/LanguageSelector/LanguageSelector';
 import BottomNav from '../components/BottomNav';
 import { useI18n } from '../hooks/useI18n';
-import logo from '../assets/logo.png';
+import logo from '../assets/spride_logo.png';
+import Modal from '../components/Modal/Modal';
+import LoginPage from '../pages/Auth/LoginPage';
+import { useAuth } from '../contexts/AuthContext';
 
 const fontFamily = `'Pretendard', 'Noto Sans KR', 'Apple SD Gothic Neo', 'Malgun Gothic', 'Segoe UI', 'sans-serif'`;
 const titleFontFamily = `'GmarketSansBold', 'Pretendard', 'Noto Sans KR', 'Apple SD Gothic Neo', 'Malgun Gothic', 'Segoe UI', 'sans-serif'`;
 
 const MainLayout = () => {
   const t = useI18n();
+  const { isLoginModalOpen, closeLoginModal } = useAuth();
+
   return (
     <div style={{ minHeight: '100vh', background: '#f5fafd', fontFamily }}>
       <header
@@ -39,6 +44,11 @@ const MainLayout = () => {
         <Outlet />
       </main>
       <BottomNav />
+
+      {/* 로그인 모달 */}
+      <Modal isOpen={isLoginModalOpen} onClose={closeLoginModal}>
+        <LoginPage />
+      </Modal>
     </div>
   );
 };
