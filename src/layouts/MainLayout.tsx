@@ -1,5 +1,5 @@
 import React from 'react';
-import { Outlet } from 'react-router-dom';
+import { Outlet, useNavigate } from 'react-router-dom';
 import LanguageSelector from '../components/LanguageSelector/LanguageSelector';
 import BottomNav from '../components/BottomNav';
 import { useI18n } from '../hooks/useI18n';
@@ -14,6 +14,11 @@ const titleFontFamily = `'GmarketSansBold', 'Pretendard', 'Noto Sans KR', 'Apple
 const MainLayout = () => {
   const t = useI18n();
   const { isLoginModalOpen, closeLoginModal } = useAuth();
+  const navigate = useNavigate();
+
+  const handleLogoClick = () => {
+    navigate('/');
+  };
 
   return (
     <div style={{ minHeight: '100vh', background: '#f5fafd', fontFamily }}>
@@ -36,8 +41,23 @@ const MainLayout = () => {
           borderBottom: '1px solid #b2ebf2',
         }}
       >
-        <img src={logo} alt="logo" style={{ height: 40, marginRight: 8 }} />
-        <span style={{ position: 'relative', top: 4, fontFamily: titleFontFamily }}>{t.title}</span>
+        <button
+          onClick={handleLogoClick}
+          style={{
+            background: 'none',
+            border: 'none',
+            padding: 0,
+            margin: 0,
+            cursor: 'pointer',
+            color: 'inherit',
+            font: 'inherit',
+            display: 'flex',
+            alignItems: 'center',
+          }}
+        >
+          <img src={logo} alt="logo" style={{ height: 40, marginRight: 8 }} />
+          <span style={{ position: 'relative', top: 4, fontFamily: titleFontFamily }}>{t.title}</span>
+        </button>
         <span style={{ marginLeft: 'auto', marginRight: 32 }}><LanguageSelector size={36} /></span>
       </header>
       <main style={{ background: '#fff', minHeight: 'calc(100vh - 120px)', paddingTop: 68 }}>

@@ -3,6 +3,8 @@ import { useI18n } from '../../hooks/useI18n';
 import kakaoLogo from '../../assets/kakao_logo.png';
 import googleLogo from '../../assets/google_logo.png';
 import serviceLogo from '../../assets/spride_logo.png';
+import { useAuth } from '../../contexts/AuthContext';
+import { useNavigate } from 'react-router-dom';
 
 interface LoginPageProps {
   // 추후 로그인 처리 함수 등을 props로 받을 수 있음
@@ -12,28 +14,36 @@ interface LoginPageProps {
 }
 
 // VITE 환경에서 환경 변수는 import.meta.env로 접근합니다.
-const KAKAO_AUTH_URL = `https://kauth.kakao.com/oauth/authorize?response_type=code&client_id=8b92984a001a2c6e01bcbddd6081a7cb&redirect_uri=${import.meta.env.VITE_API_BASE_URL}/api/auth/kakao/login`;
+const KAKAO_AUTH_BASE_URL = `https://kauth.kakao.com/oauth/authorize?response_type=code&client_id=8b92984a001a2c6e01bcbddd6081a7cb&redirect_uri=${import.meta.env.VITE_CLIENT_URL}/auth/kakao/callback`;
 
 const LoginPage: React.FC<LoginPageProps> = ({ onKakaoLogin, onGoogleLogin, onClose }) => {
   const t = useI18n();
+  const { login, redirectPath, setRedirectPath, closeLoginModal } = useAuth();
+  const navigate = useNavigate();
 
   const handleKakaoLogin = () => {
-    // onKakaoLogin prop이 있다면 호출 (추가 로직 처리용)
     if (onKakaoLogin) {
         onKakaoLogin();
     }
-    // 카카오 인증 페이지로 리다이렉트
-    window.location.href = KAKAO_AUTH_URL;
+    const finalKakaoAuthUrl = redirectPath
+      ? `${KAKAO_AUTH_BASE_URL}&returnTo=${encodeURIComponent(redirectPath)}`
+      : KAKAO_AUTH_BASE_URL;
+    window.location.href = finalKakaoAuthUrl;
   };
 
-  // 구글 로그인은 현재 연결 주소가 없으므로 onGoogleLogin prop만 호출
   const handleGoogleLogin = () => {
       if (onGoogleLogin) {
           onGoogleLogin();
       }
       // 추후 구글 인증 URL 연결
       console.log('Google login clicked');
-  }
+      // 임시로 로그인 성공 처리
+      login();
+      const redirectTo = redirectPath || '/';
+      setRedirectPath(null);
+      closeLoginModal();
+      navigate(redirectTo);
+  };
 
   return (
     <div style={{

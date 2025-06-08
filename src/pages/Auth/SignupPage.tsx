@@ -1,47 +1,54 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { useI18n } from '../../hooks/useI18n';
-import { useLocation, useNavigate } from 'react-router-dom';
-
-interface SignupPageProps {
-  // 추후 회원가입 처리 함수 등을 props로 받을 수 있음
-}
+import { useAuth } from '../../contexts/AuthContext';
 
 interface SignupData {
   nickname: string;
-  profileUrl?: string; // 백엔드에서 받은 프로필 URL
+  profileUrl: string;
 }
 
-const SignupPage: React.FC<SignupPageProps> = () => {
+const SignupPage: React.FC = () => {
   const t = useI18n();
-  const location = useLocation();
   const navigate = useNavigate();
-
-  // Auth 콜백 페이지에서 전달받은 데이터 (예: state 이용)
-  const signupData = location.state as SignupData | undefined;
+  const location = useLocation();
+  const auth = useAuth();
+  const signupData = location.state as SignupData;
 
   const [nickname, setNickname] = useState(signupData?.nickname || '');
   const [introduction, setIntroduction] = useState('');
 
-  useEffect(() => {
-    // 만약 state에 데이터가 없다면 (예: 직접 /signup으로 접근 시) 홈으로 리다이렉트
-    if (!signupData) {
-       // navigate('/'); // 또는 적절한 에러 페이지로 이동
-       // 일단 개발 편의상 주석 처리. 실제 배포시에는 처리 필요.
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    try {
+      const response = await fetch(`${import.meta.env.VITE_SERVER_URL}/api/auth/kakao/signup`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        credentials: 'include', // 쿠키 포함
+        body: JSON.stringify({
+          nickname,
+          introText: introduction,
+          profileUrl: signupData?.profileUrl,
+        }),
+      });
+
+      if (response.ok) {
+        // 회원가입 성공 시 로그인 상태 업데이트
+        auth.login();
+        
+        // 원래 가려던 페이지로 이동
+        const returnTo = new URLSearchParams(location.search).get('returnTo') || '/';
+        navigate(returnTo);
+      } else {
+        console.error('회원가입 실패');
+        // 에러 처리
+      }
+    } catch (error) {
+      console.error('회원가입 중 오류 발생:', error);
     }
-  }, [signupData, navigate]);
-
-  const handleNicknameChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setNickname(event.target.value);
-  };
-
-  const handleIntroductionChange = (event: React.ChangeEvent<HTMLTextAreaElement>) => {
-    setIntroduction(event.target.value);
-  };
-
-  const handleSubmit = () => {
-    // 여기서 회원가입 API 호출 로직을 구현합니다.
-    console.log('Signup data:', { nickname, introduction });
-    // API 호출 후 성공 시 로그인 완료 처리 및 페이지 이동
   };
 
   return (
@@ -50,50 +57,87 @@ const SignupPage: React.FC<SignupPageProps> = () => {
       flexDirection: 'column',
       alignItems: 'center',
       padding: '24px 16px',
-      width: '100%%',
+      width: '100%',
       boxSizing: 'border-box',
     }}>
-      <h2>{t.signupTitle}</h2> {/* 다국어 텍스트 필요 */}
+      <h2>회원가입</h2>
 
-      {/* 닉네임 입력 필드 */}
-      <label htmlFor='nickname'>{t.signupNicknameLabel}</label> {/* 다국어 텍스트 필요 */}
-      <input
-        id='nickname'
-        type='text'
-        value={nickname}
-        onChange={handleNicknameChange}
-        placeholder={t.signupNicknamePlaceholder} // 다국어 텍스트 필요
-        style={{ marginBottom: 16, padding: '8px', width: '80%%', boxSizing: 'border-box' }}
-      />
+      {/* 프로필 이미지 */}
+      {signupData?.profileUrl && (
+        <img
+          src={signupData.profileUrl}
+          alt="프로필"
+          style={{
+            width: 100,
+            height: 100,
+            borderRadius: '50%',
+            marginBottom: 24,
+            objectFit: 'cover',
+          }}
+        />
+      )}
 
-      {/* 한 줄 소개 입력 필드 */}
-      <label htmlFor='introduction'>{t.signupIntroductionLabel}</label> {/* 다국어 텍스트 필요 */}
-      <textarea
-        id='introduction'
-        value={introduction}
-        onChange={handleIntroductionChange}
-        placeholder={t.signupIntroductionPlaceholder} // 다국어 텍스트 필요
-        style={{ marginBottom: 24, padding: '8px', width: '80%%', minHeight: 80, boxSizing: 'border-box' }}
-      />
+      <form onSubmit={handleSubmit} style={{ width: '100%', maxWidth: 400 }}>
+        {/* 닉네임 입력 */}
+        <div style={{ marginBottom: 16 }}>
+          <label htmlFor="nickname" style={{ display: 'block', marginBottom: 8 }}>
+            닉네임
+          </label>
+          <input
+            id="nickname"
+            type="text"
+            value={nickname}
+            onChange={(e) => setNickname(e.target.value)}
+            style={{
+              width: '100%',
+              padding: '8px 12px',
+              borderRadius: 4,
+              border: '1px solid #ddd',
+            }}
+            required
+          />
+        </div>
 
-      {/* 회원가입 완료 버튼 */}
-      <button
-        onClick={handleSubmit}
-        style={{
-          width: '80%%',
-          padding: '12px 24px',
-          backgroundColor: '#007bff', // 적절한 색상으로 변경
-          color: 'white',
-          border: 'none',
-          borderRadius: 6,
-          fontSize: 18,
-          cursor: 'pointer',
-        }}
-      >
-        {t.signupButtonText} {/* 다국어 텍스트 필요 */}
-      </button>
+        {/* 한 줄 소개 입력 */}
+        <div style={{ marginBottom: 24 }}>
+          <label htmlFor="introduction" style={{ display: 'block', marginBottom: 8 }}>
+            한 줄 소개
+          </label>
+          <textarea
+            id="introduction"
+            value={introduction}
+            onChange={(e) => setIntroduction(e.target.value)}
+            style={{
+              width: '100%',
+              padding: '8px 12px',
+              borderRadius: 4,
+              border: '1px solid #ddd',
+              minHeight: 100,
+              resize: 'vertical',
+            }}
+            required
+          />
+        </div>
+
+        {/* 제출 버튼 */}
+        <button
+          type="submit"
+          style={{
+            width: '100%',
+            padding: '12px',
+            backgroundColor: '#007bff',
+            color: 'white',
+            border: 'none',
+            borderRadius: 4,
+            fontSize: 16,
+            cursor: 'pointer',
+          }}
+        >
+          가입하기
+        </button>
+      </form>
     </div>
   );
 };
 
-export default SignupPage; 
+export default SignupPage;
