@@ -16,7 +16,7 @@ export const LanguageProvider = ({ children }: { children: ReactNode }) => {
     const navLang = navigator.language.toLowerCase();
     if (navLang.startsWith('ko')) return 'ko';
     if (navLang.startsWith('en')) return 'en';
-    return 'ko'; // 기본값
+    return 'en'; // 기본값
   };
 
   const [language, setLanguageState] = useState<Language>(getDefaultLanguage());

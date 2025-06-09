@@ -1,13 +1,21 @@
 import React, { useState, useMemo, useEffect, useRef } from 'react';
-import ShuttleInfoCard, { ShuttleInfo } from './ShuttleInfoCard';
+import ShuttleInfoCard from './ShuttleInfoCard';
 import { useI18n } from '../../hooks/useI18n';
 import { useAuth } from '../../contexts/AuthContext';
 import NoticeModal from '../../components/NoticeModal';
 import { useNavigate } from 'react-router-dom';
+import { useLanguage } from '../../contexts/LanguageContext';
+
+interface ShuttleInfo {
+  id: number;
+  departureTime: string;
+}
+
+type ShuttleDirection = 'TO_SCHOOL' | 'FROM_SCHOOL';
 
 interface ExtendedShuttleInfo extends ShuttleInfo {
-  type: '등교' | '하교';
-  route: string;
+  routeName: 'BAEKSEOK' | 'SAMSONG' | 'SAMSONG_WITH_WONHEUNG';
+  shuttleDirection: ShuttleDirection;
 }
 
 interface NoticeItem {
@@ -21,7 +29,7 @@ const ShuttlePage: React.FC = () => {
   const { openLoginModal } = useAuth();
   const navigate = useNavigate();
 
-  const [currentTab, setCurrentTab] = useState<'등교' | '하교'>('등교');
+  const [currentTab, setCurrentTab] = useState<'TO_SCHOOL' | 'FROM_SCHOOL'>('TO_SCHOOL');
   const [selectedRoute, setSelectedRoute] = useState<string | null>(null);
   const [isNoticeModalOpen, setIsNoticeModalOpen] = useState(false);
   const [currentNoticeIndex, setCurrentNoticeIndex] = useState(0);
@@ -29,6 +37,9 @@ const ShuttlePage: React.FC = () => {
   const [touchStartX, setTouchStartX] = useState(0);
   const [translateX, setTranslateX] = useState(0);
   const [isDragging, setIsDragging] = useState(false);
+  const [currentTime, setCurrentTime] = useState('');
+  const [showAllShuttles, setShowAllShuttles] = useState(false);
+  const { language } = useLanguage();
 
   const notices: NoticeItem[] = useMemo(() => [
     {
@@ -58,6 +69,24 @@ const ShuttlePage: React.FC = () => {
       setContainerWidth(width);
     }
   }, []);
+
+  useEffect(() => {
+    const updateTime = () => {
+      const now = new Date();
+      setCurrentTime(now.toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit', hour12: false }));
+    };
+
+    updateTime(); // 초기 시간 설정
+    const intervalId = setInterval(updateTime, 60000); // 1분마다 시간 업데이트
+
+    return () => clearInterval(intervalId); // 컴포넌트 언마운트 시 인터벌 정리
+  }, []);
+
+  // "HH:MM" 형식의 시간을 분 단위 숫자로 변환하는 헬퍼 함수
+  const timeToMinutes = (timeString: string): number => {
+    const [hours, minutes] = timeString.split(':').map(Number);
+    return hours * 60 + minutes;
+  };
 
   const startAutoSwipe = () => {
     if (intervalRef.current) {
@@ -127,31 +156,87 @@ const ShuttlePage: React.FC = () => {
   };
 
   const allShuttles: ExtendedShuttleInfo[] = useMemo(() => [
-    { id: 1, title: t.navShuttle + ' A1', description: t.navShuttle + ' A1 정보', type: '등교', route: t.routeA },
-    { id: 2, title: t.navShuttle + ' B1', description: t.navShuttle + ' B1 정보', type: '등교', route: t.routeB },
-    { id: 3, title: t.navShuttle + ' C1', description: t.navShuttle + ' C1 정보', type: '등교', route: t.routeC },
-    { id: 4, title: t.navShuttle + ' A2', description: t.navShuttle + ' A2 정보', type: '하교', route: t.routeA },
-    { id: 5, title: t.navShuttle + ' B2', description: t.navShuttle + ' B2 정보', type: '하교', route: t.routeB },
-    { id: 6, title: t.navShuttle + ' C2', description: t.navShuttle + ' C2 정보', type: '하교', route: t.routeC },
-  ], [t]);
+    {"id": 1, "routeName": "BAEKSEOK", "shuttleDirection": "TO_SCHOOL", "departureTime": "08:20"},
+    {"id": 2, "routeName": "BAEKSEOK", "shuttleDirection": "TO_SCHOOL", "departureTime": "08:25"},
+    {"id": 3, "routeName": "BAEKSEOK", "shuttleDirection": "TO_SCHOOL", "departureTime": "08:30"},
+    {"id": 4, "routeName": "BAEKSEOK", "shuttleDirection": "TO_SCHOOL", "departureTime": "08:40"},
+    {"id": 5, "routeName": "BAEKSEOK", "shuttleDirection": "TO_SCHOOL", "departureTime": "09:00"},
+    {"id": 6, "routeName": "BAEKSEOK", "shuttleDirection": "TO_SCHOOL", "departureTime": "09:20"},
+    {"id": 7, "routeName": "BAEKSEOK", "shuttleDirection": "TO_SCHOOL", "departureTime": "09:25"},
+    {"id": 8, "routeName": "BAEKSEOK", "shuttleDirection": "TO_SCHOOL", "departureTime": "09:30"},
+    {"id": 9, "routeName": "BAEKSEOK", "shuttleDirection": "TO_SCHOOL", "departureTime": "10:00"},
+    {"id": 10, "routeName": "BAEKSEOK", "shuttleDirection": "TO_SCHOOL", "departureTime": "10:15"},
+    {"id": 11, "routeName": "BAEKSEOK", "shuttleDirection": "TO_SCHOOL", "departureTime": "10:25"},
+    {"id": 12, "routeName": "BAEKSEOK", "shuttleDirection": "TO_SCHOOL", "departureTime": "11:00"},
+    {"id": 13, "routeName": "BAEKSEOK", "shuttleDirection": "TO_SCHOOL", "departureTime": "12:00"},
+    {"id": 14, "routeName": "BAEKSEOK", "shuttleDirection": "TO_SCHOOL", "departureTime": "14:00"},
+    {"id": 15, "routeName": "BAEKSEOK", "shuttleDirection": "FROM_SCHOOL", "departureTime": "11:20"},
+    {"id": 16, "routeName": "BAEKSEOK", "shuttleDirection": "FROM_SCHOOL", "departureTime": "13:20"},
+    {"id": 17, "routeName": "BAEKSEOK", "shuttleDirection": "FROM_SCHOOL", "departureTime": "14:20"},
+    {"id": 18, "routeName": "BAEKSEOK", "shuttleDirection": "FROM_SCHOOL", "departureTime": "15:20"},
+    {"id": 19, "routeName": "BAEKSEOK", "shuttleDirection": "FROM_SCHOOL", "departureTime": "16:20"},
+    {"id": 20, "routeName": "BAEKSEOK", "shuttleDirection": "FROM_SCHOOL", "departureTime": "16:30"},
+    {"id": 21, "routeName": "BAEKSEOK", "shuttleDirection": "FROM_SCHOOL", "departureTime": "17:00"},
+    {"id": 22, "routeName": "BAEKSEOK", "shuttleDirection": "FROM_SCHOOL", "departureTime": "17:20"},
+    {"id": 23, "routeName": "BAEKSEOK", "shuttleDirection": "FROM_SCHOOL", "departureTime": "17:30"},
+    {"id": 24, "routeName": "BAEKSEOK", "shuttleDirection": "FROM_SCHOOL", "departureTime": "18:20"},
+    {"id": 25, "routeName": "SAMSONG", "shuttleDirection": "TO_SCHOOL", "departureTime": "08:20"},
+    {"id": 26, "routeName": "SAMSONG", "shuttleDirection": "TO_SCHOOL", "departureTime": "08:35"},
+    {"id": 27, "routeName": "SAMSONG", "shuttleDirection": "TO_SCHOOL", "departureTime": "08:40"},
+    {"id": 28, "routeName": "SAMSONG", "shuttleDirection": "TO_SCHOOL", "departureTime": "09:00"},
+    {"id": 29, "routeName": "SAMSONG", "shuttleDirection": "TO_SCHOOL", "departureTime": "09:10"},
+    {"id": 30, "routeName": "SAMSONG", "shuttleDirection": "TO_SCHOOL", "departureTime": "09:30"},
+    {"id": 31, "routeName": "SAMSONG", "shuttleDirection": "TO_SCHOOL", "departureTime": "10:10"},
+    {"id": 32, "routeName": "SAMSONG", "shuttleDirection": "TO_SCHOOL", "departureTime": "10:30"},
+    {"id": 33, "routeName": "SAMSONG", "shuttleDirection": "TO_SCHOOL", "departureTime": "11:20"},
+    {"id": 34, "routeName": "SAMSONG", "shuttleDirection": "TO_SCHOOL", "departureTime": "13:20"},
+    {"id": 35, "routeName": "SAMSONG", "shuttleDirection": "TO_SCHOOL", "departureTime": "14:20"},
+    {"id": 36, "routeName": "SAMSONG", "shuttleDirection": "TO_SCHOOL", "departureTime": "15:20"},
+    {"id": 37, "routeName": "SAMSONG", "shuttleDirection": "FROM_SCHOOL", "departureTime": "12:20"},
+    {"id": 38, "routeName": "SAMSONG", "shuttleDirection": "FROM_SCHOOL", "departureTime": "13:20"},
+    {"id": 39, "routeName": "SAMSONG", "shuttleDirection": "FROM_SCHOOL", "departureTime": "14:20"},
+    {"id": 40, "routeName": "SAMSONG", "shuttleDirection": "FROM_SCHOOL", "departureTime": "15:20"},
+    {"id": 41, "routeName": "SAMSONG", "shuttleDirection": "FROM_SCHOOL", "departureTime": "16:00"},
+    {"id": 42, "routeName": "SAMSONG", "shuttleDirection": "FROM_SCHOOL", "departureTime": "16:20"},
+    {"id": 43, "routeName": "SAMSONG", "shuttleDirection": "FROM_SCHOOL", "departureTime": "17:00"},
+    {"id": 44, "routeName": "SAMSONG", "shuttleDirection": "FROM_SCHOOL", "departureTime": "17:20"},
+    {"id": 45, "routeName": "SAMSONG_WITH_WONHEUNG", "shuttleDirection": "FROM_SCHOOL", "departureTime": "17:30"},
+    {"id": 46, "routeName": "SAMSONG_WITH_WONHEUNG", "shuttleDirection": "FROM_SCHOOL", "departureTime": "18:10"},
+    {"id": 47, "routeName": "SAMSONG_WITH_WONHEUNG", "shuttleDirection": "FROM_SCHOOL", "departureTime": "18:20"},
+    {"id": 48, "routeName": "SAMSONG", "shuttleDirection": "FROM_SCHOOL", "departureTime": "19:20"},
+  ], []);
 
   const availableRoutes = useMemo(() => {
     const routes = new Set<string>();
     allShuttles.forEach(shuttle => {
-      if (shuttle.type === currentTab) {
-        routes.add(shuttle.route);
+      if (shuttle.shuttleDirection === currentTab) {
+        routes.add(shuttle.routeName);
       }
     });
     return Array.from(routes);
   }, [allShuttles, currentTab]);
 
   const filteredShuttles = useMemo(() => {
+    const currentMinutes = timeToMinutes(currentTime);
+
     return allShuttles.filter(shuttle => {
-      const matchesTab = shuttle.type === currentTab;
-      const matchesRoute = selectedRoute ? shuttle.route === selectedRoute : true;
-      return matchesTab && matchesRoute;
+      const matchesTab = shuttle.shuttleDirection === currentTab;
+      const matchesRoute = selectedRoute 
+        ? selectedRoute === 'SAMSONG' 
+          ? shuttle.routeName === 'SAMSONG' || shuttle.routeName === 'SAMSONG_WITH_WONHEUNG'
+          : shuttle.routeName === selectedRoute
+        : true;
+      
+      const shuttleMinutes = timeToMinutes(shuttle.departureTime);
+      const isFutureTime = shuttleMinutes >= currentMinutes;
+
+      console.log(`[Shuttle Filter] Tab: ${currentTab}, Shuttle: ${shuttle.routeName}-${shuttle.shuttleDirection} at ${shuttle.departureTime} (${shuttleMinutes}min), Current Time: ${currentTime} (${currentMinutes}min), MatchesTab: ${matchesTab}, MatchesRoute: ${matchesRoute}, IsFuture: ${isFutureTime}, Result: ${matchesTab && matchesRoute && isFutureTime}`);
+
+      return matchesTab && matchesRoute && isFutureTime;
+    }).sort((a, b) => {
+      return timeToMinutes(a.departureTime) - timeToMinutes(b.departureTime);
     });
-  }, [allShuttles, currentTab, selectedRoute]);
+  }, [allShuttles, currentTab, selectedRoute, currentTime]);
 
   const handleCardClick = (id: number) => {
     navigate(`/shuttle/${id}`);
@@ -271,36 +356,36 @@ const ShuttlePage: React.FC = () => {
             flex: 1,
             padding: '10px 0',
             border: 'none',
-            background: currentTab === '등교' ? '#00bcd4' : '#eee',
-            color: currentTab === '등교' ? 'white' : 'black',
+            background: currentTab === 'TO_SCHOOL' ? '#007bff' : '#f0f0f0',
+            color: currentTab === 'TO_SCHOOL' ? 'white' : 'black',
             cursor: 'pointer',
             fontSize: '1.1em',
             borderRadius: '5px 0 0 5px',
           }}
           onClick={() => {
-            setCurrentTab('등교');
+            setCurrentTab('TO_SCHOOL');
             setSelectedRoute(null);
           }}
         >
-          {t.schoolBound}
+          {t.toSchool}
         </button>
         <button
           style={{
             flex: 1,
             padding: '10px 0',
             border: 'none',
-            background: currentTab === '하교' ? '#00bcd4' : '#eee',
-            color: currentTab === '하교' ? 'white' : 'black',
+            background: currentTab === 'FROM_SCHOOL' ? '#007bff' : '#f0f0f0',
+            color: currentTab === 'FROM_SCHOOL' ? 'white' : 'black',
             cursor: 'pointer',
             fontSize: '1.1em',
             borderRadius: '0 5px 5px 0',
           }}
           onClick={() => {
-            setCurrentTab('하교');
+            setCurrentTab('FROM_SCHOOL');
             setSelectedRoute(null);
           }}
         >
-          {t.homeBound}
+          {t.fromSchool}
         </button>
       </div>
 
@@ -314,12 +399,16 @@ const ShuttlePage: React.FC = () => {
             borderRadius: '5px',
             border: '1px solid #ccc',
           }}
-          onChange={(e) => setSelectedRoute(e.target.value === t.allRoutes ? null : e.target.value)}
-          value={selectedRoute || t.allRoutes}
-        >
+          onChange={(e) => setSelectedRoute(e.target.value === t.allRoutes ? null : e.target.value)}>
           <option value={t.allRoutes}>{t.allRoutes}</option>
           {availableRoutes.map(route => (
-            <option key={route} value={route}>{route}</option>
+            <option key={route} value={route}>
+              {route === 'BAEKSEOK' && currentTab === 'FROM_SCHOOL' 
+                ? language === 'en' 
+                  ? 'Baekseok (via Daegok)'
+                  : '백석(대곡 경유)'
+                : t[route.toLowerCase()] || route}
+            </option>
           ))}
         </select>
       </div>
@@ -330,9 +419,58 @@ const ShuttlePage: React.FC = () => {
           {t.noShuttle}
         </div>
       ) : (
-        filteredShuttles.map((info) => (
-          <ShuttleInfoCard key={info.id} info={info} onCardClick={handleCardClick} />
-        ))
+        <>
+          {filteredShuttles.slice(0, showAllShuttles ? undefined : 3).map((shuttle, index) => (
+            <ShuttleInfoCard
+              key={shuttle.id}
+              info={shuttle}
+              onCardClick={handleCardClick}
+              onHelpClick={handleHelpClick}
+              showCountdown={!showAllShuttles && index < 3}
+            />
+          ))}
+          {filteredShuttles.length > 3 && !showAllShuttles && (
+            <button
+              onClick={() => setShowAllShuttles(true)}
+              style={{
+                width: '100%',
+                padding: '12px',
+                marginTop: '16px',
+                backgroundColor: '#f8f9fa',
+                border: '1px solid #dee2e6',
+                borderRadius: '8px',
+                color: '#007bff',
+                fontSize: '16px',
+                cursor: 'pointer',
+                textAlign: 'center'
+              }}
+            >
+              {language === 'en' ? 'View more (' : '더보기 ('}
+              {filteredShuttles.length - 3}
+              {language === 'en' ? 'more)' : '개 더 보기)'}
+
+            </button>
+          )}
+          {showAllShuttles && (
+            <button
+              onClick={() => setShowAllShuttles(false)}
+              style={{
+                width: '100%',
+                padding: '12px',
+                marginTop: '16px',
+                backgroundColor: '#f8f9fa',
+                border: '1px solid #dee2e6',
+                borderRadius: '8px',
+                color: '#6c757d',
+                fontSize: '16px',
+                cursor: 'pointer',
+                textAlign: 'center'
+              }}
+            >
+              접기
+            </button>
+          )}
+        </>
       )}
 
       {/* 공지사항 모달 */}
