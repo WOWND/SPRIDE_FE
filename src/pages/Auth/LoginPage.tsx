@@ -103,8 +103,7 @@ const LoginPage: React.FC<LoginPageProps> = ({ onKakaoLogin, onGoogleLogin, onCl
           {/* 카카오 아이콘 이미지 */}
           <img src={kakaoLogo} alt="Kakao Logo" style={{ width: 16, height: 16, marginRight: 12 }} /> {/* 마진 조정 */}
           {/* 텍스트 */}
-            ddddd
-          <span style={{ fontSize: 16 }}>{t.loginKakao}</span>
+          <span style={{ fontSize: 16 }}>{t.kakaoLogin}</span>
         </div>
       </button>
 
@@ -135,8 +134,7 @@ const LoginPage: React.FC<LoginPageProps> = ({ onKakaoLogin, onGoogleLogin, onCl
           {/* 구글 아이콘 이미지 */}
           <img src={googleLogo} alt="Google Logo" style={{ width: 16, height: 16, marginRight: 12 }} /> {/* 마진 조정 */}
           {/* 텍스트 */}
-            ddddddd
-          <span style={{ fontSize: 16 }}>{t.loginGoogle}</span>
+          <span style={{ fontSize: 16 }}>{t.googleLogin}</span>
         </div>
       </button>
 
