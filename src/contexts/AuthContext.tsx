@@ -4,7 +4,7 @@ interface AuthContextProps {
   isLoginModalOpen: boolean;
   openLoginModal: () => void;
   closeLoginModal: () => void;
-  isLoggedIn: boolean;
+  isAuthenticated: boolean;
   login: () => void;
   logout: () => void;
   redirectPath: string | null;
@@ -16,7 +16,7 @@ const AuthContext = createContext<AuthContextProps | undefined>(undefined);
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [redirectPath, setRedirectPath] = useState<string | null>(null);
   const [isLoadingAuth, setIsLoadingAuth] = useState(true);
 
@@ -31,13 +31,13 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   };
 
   const login = () => {
-    console.log('Login function called, setting isLoggedIn to true');
-    setIsLoggedIn(true);
+    console.log('Login function called, setting isAuthenticated to true');
+    setIsAuthenticated(true);
   };
 
   const logout = () => {
-    console.log('Logout function called, setting isLoggedIn to false');
-    setIsLoggedIn(false);
+    console.log('Logout function called, setting isAuthenticated to false');
+    setIsAuthenticated(false);
   };
 
   // 컴포넌트 마운트 시 로그인 상태 확인
@@ -54,14 +54,14 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
         if (response.ok) {
           console.log('Initial auth check: User is logged in');
-          setIsLoggedIn(true);
+          setIsAuthenticated(true);
         } else {
           console.log('Initial auth check: User is not logged in');
-          setIsLoggedIn(false);
+          setIsAuthenticated(false);
         }
       } catch (error) {
         console.error('Failed to check login status:', error);
-        setIsLoggedIn(false);
+        setIsAuthenticated(false);
       } finally {
         setIsLoadingAuth(false);
       }
@@ -70,10 +70,10 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     checkLoginStatus();
   }, []);
 
-  // isLoggedIn 상태 변경 시 로그 출력
+  // isAuthenticated 상태 변경 시 로그 출력
   useEffect(() => {
-    console.log('isLoggedIn state changed:', isLoggedIn);
-  }, [isLoggedIn]);
+    console.log('isAuthenticated state changed:', isAuthenticated);
+  }, [isAuthenticated]);
 
   // isLoginModalOpen 상태 변경 시 로그 출력
   useEffect(() => {
@@ -83,7 +83,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   return (
     <AuthContext.Provider value={{
       isLoginModalOpen, openLoginModal, closeLoginModal,
-      isLoggedIn, login, logout,
+      isAuthenticated, login, logout,
       redirectPath, setRedirectPath,
       isLoadingAuth
     }}>
