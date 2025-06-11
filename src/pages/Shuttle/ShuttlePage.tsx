@@ -5,17 +5,11 @@ import { useAuth } from '../../contexts/AuthContext';
 import NoticeModal from '../../components/NoticeModal';
 import { useNavigate } from 'react-router-dom';
 import { useLanguage } from '../../contexts/LanguageContext';
+import { allShuttles, ShuttleDirection, ExtendedShuttleInfo } from '../../data/shuttleData';
 
 interface ShuttleInfo {
   id: number;
   departureTime: string;
-}
-
-type ShuttleDirection = 'TO_SCHOOL' | 'FROM_SCHOOL';
-
-interface ExtendedShuttleInfo extends ShuttleInfo {
-  routeName: 'BAEKSEOK' | 'SAMSONG' | 'SAMSONG_WITH_WONHEUNG';
-  shuttleDirection: ShuttleDirection;
 }
 
 interface NoticeItem {
@@ -29,8 +23,12 @@ const ShuttlePage: React.FC = () => {
   const { openLoginModal } = useAuth();
   const navigate = useNavigate();
 
-  const [currentTab, setCurrentTab] = useState<'TO_SCHOOL' | 'FROM_SCHOOL'>('TO_SCHOOL');
-  const [selectedRoute, setSelectedRoute] = useState<string | null>(null);
+  // sessionStorage에서 이전 탭 및 노선 선택 불러오기
+  const initialTab = (sessionStorage.getItem('shuttleCurrentTab') as ShuttleDirection) || 'TO_SCHOOL';
+  const initialRoute = sessionStorage.getItem('shuttleSelectedRoute') || null;
+
+  const [currentTab, setCurrentTabState] = useState<ShuttleDirection>(initialTab);
+  const [selectedRoute, setSelectedRouteState] = useState<string | null>(initialRoute);
   const [isNoticeModalOpen, setIsNoticeModalOpen] = useState(false);
   const [currentNoticeIndex, setCurrentNoticeIndex] = useState(0);
   const [modalNoticeContent, setModalNoticeContent] = useState<string>('');
@@ -40,6 +38,24 @@ const ShuttlePage: React.FC = () => {
   const [currentTime, setCurrentTime] = useState('');
   const [showAllShuttles, setShowAllShuttles] = useState(false);
   const { language } = useLanguage();
+
+  // 탭 변경 함수: 탭 상태를 업데이트하고 sessionStorage에 저장하며, 노선 선택을 초기화합니다.
+  const setCurrentTab = (tab: ShuttleDirection) => {
+    setCurrentTabState(tab);
+    sessionStorage.setItem('shuttleCurrentTab', tab);
+    setSelectedRouteState(null); // 탭 변경 시 노선 선택 초기화
+    sessionStorage.removeItem('shuttleSelectedRoute'); // sessionStorage에서도 노선 초기화
+  };
+
+  // 노선 선택 함수: 노선 상태를 업데이트하고 sessionStorage에 저장합니다.
+  const setSelectedRoute = (route: string | null) => {
+    setSelectedRouteState(route);
+    if (route) {
+      sessionStorage.setItem('shuttleSelectedRoute', route);
+    } else {
+      sessionStorage.removeItem('shuttleSelectedRoute');
+    }
+  };
 
   const notices: NoticeItem[] = useMemo(() => [
     {
@@ -154,57 +170,6 @@ const ShuttlePage: React.FC = () => {
       startAutoSwipe();
     }
   };
-
-  const allShuttles: ExtendedShuttleInfo[] = useMemo(() => [
-    {"id": 1, "routeName": "BAEKSEOK", "shuttleDirection": "TO_SCHOOL", "departureTime": "08:20"},
-    {"id": 2, "routeName": "BAEKSEOK", "shuttleDirection": "TO_SCHOOL", "departureTime": "08:25"},
-    {"id": 3, "routeName": "BAEKSEOK", "shuttleDirection": "TO_SCHOOL", "departureTime": "08:30"},
-    {"id": 4, "routeName": "BAEKSEOK", "shuttleDirection": "TO_SCHOOL", "departureTime": "08:40"},
-    {"id": 5, "routeName": "BAEKSEOK", "shuttleDirection": "TO_SCHOOL", "departureTime": "09:00"},
-    {"id": 6, "routeName": "BAEKSEOK", "shuttleDirection": "TO_SCHOOL", "departureTime": "09:20"},
-    {"id": 7, "routeName": "BAEKSEOK", "shuttleDirection": "TO_SCHOOL", "departureTime": "09:25"},
-    {"id": 8, "routeName": "BAEKSEOK", "shuttleDirection": "TO_SCHOOL", "departureTime": "09:30"},
-    {"id": 9, "routeName": "BAEKSEOK", "shuttleDirection": "TO_SCHOOL", "departureTime": "10:00"},
-    {"id": 10, "routeName": "BAEKSEOK", "shuttleDirection": "TO_SCHOOL", "departureTime": "10:15"},
-    {"id": 11, "routeName": "BAEKSEOK", "shuttleDirection": "TO_SCHOOL", "departureTime": "10:25"},
-    {"id": 12, "routeName": "BAEKSEOK", "shuttleDirection": "TO_SCHOOL", "departureTime": "11:00"},
-    {"id": 13, "routeName": "BAEKSEOK", "shuttleDirection": "TO_SCHOOL", "departureTime": "12:00"},
-    {"id": 14, "routeName": "BAEKSEOK", "shuttleDirection": "TO_SCHOOL", "departureTime": "14:00"},
-    {"id": 15, "routeName": "BAEKSEOK", "shuttleDirection": "FROM_SCHOOL", "departureTime": "11:20"},
-    {"id": 16, "routeName": "BAEKSEOK", "shuttleDirection": "FROM_SCHOOL", "departureTime": "13:20"},
-    {"id": 17, "routeName": "BAEKSEOK", "shuttleDirection": "FROM_SCHOOL", "departureTime": "14:20"},
-    {"id": 18, "routeName": "BAEKSEOK", "shuttleDirection": "FROM_SCHOOL", "departureTime": "15:20"},
-    {"id": 19, "routeName": "BAEKSEOK", "shuttleDirection": "FROM_SCHOOL", "departureTime": "16:20"},
-    {"id": 20, "routeName": "BAEKSEOK", "shuttleDirection": "FROM_SCHOOL", "departureTime": "16:30"},
-    {"id": 21, "routeName": "BAEKSEOK", "shuttleDirection": "FROM_SCHOOL", "departureTime": "17:00"},
-    {"id": 22, "routeName": "BAEKSEOK", "shuttleDirection": "FROM_SCHOOL", "departureTime": "17:20"},
-    {"id": 23, "routeName": "BAEKSEOK", "shuttleDirection": "FROM_SCHOOL", "departureTime": "17:30"},
-    {"id": 24, "routeName": "BAEKSEOK", "shuttleDirection": "FROM_SCHOOL", "departureTime": "18:20"},
-    {"id": 25, "routeName": "SAMSONG", "shuttleDirection": "TO_SCHOOL", "departureTime": "08:20"},
-    {"id": 26, "routeName": "SAMSONG", "shuttleDirection": "TO_SCHOOL", "departureTime": "08:35"},
-    {"id": 27, "routeName": "SAMSONG", "shuttleDirection": "TO_SCHOOL", "departureTime": "08:40"},
-    {"id": 28, "routeName": "SAMSONG", "shuttleDirection": "TO_SCHOOL", "departureTime": "09:00"},
-    {"id": 29, "routeName": "SAMSONG", "shuttleDirection": "TO_SCHOOL", "departureTime": "09:10"},
-    {"id": 30, "routeName": "SAMSONG", "shuttleDirection": "TO_SCHOOL", "departureTime": "09:30"},
-    {"id": 31, "routeName": "SAMSONG", "shuttleDirection": "TO_SCHOOL", "departureTime": "10:10"},
-    {"id": 32, "routeName": "SAMSONG", "shuttleDirection": "TO_SCHOOL", "departureTime": "10:30"},
-    {"id": 33, "routeName": "SAMSONG", "shuttleDirection": "TO_SCHOOL", "departureTime": "11:20"},
-    {"id": 34, "routeName": "SAMSONG", "shuttleDirection": "TO_SCHOOL", "departureTime": "13:20"},
-    {"id": 35, "routeName": "SAMSONG", "shuttleDirection": "TO_SCHOOL", "departureTime": "14:20"},
-    {"id": 36, "routeName": "SAMSONG", "shuttleDirection": "TO_SCHOOL", "departureTime": "15:20"},
-    {"id": 37, "routeName": "SAMSONG", "shuttleDirection": "FROM_SCHOOL", "departureTime": "12:20"},
-    {"id": 38, "routeName": "SAMSONG", "shuttleDirection": "FROM_SCHOOL", "departureTime": "13:20"},
-    {"id": 39, "routeName": "SAMSONG", "shuttleDirection": "FROM_SCHOOL", "departureTime": "14:20"},
-    {"id": 40, "routeName": "SAMSONG", "shuttleDirection": "FROM_SCHOOL", "departureTime": "15:20"},
-    {"id": 41, "routeName": "SAMSONG", "shuttleDirection": "FROM_SCHOOL", "departureTime": "16:00"},
-    {"id": 42, "routeName": "SAMSONG", "shuttleDirection": "FROM_SCHOOL", "departureTime": "16:20"},
-    {"id": 43, "routeName": "SAMSONG", "shuttleDirection": "FROM_SCHOOL", "departureTime": "17:00"},
-    {"id": 44, "routeName": "SAMSONG", "shuttleDirection": "FROM_SCHOOL", "departureTime": "17:20"},
-    {"id": 45, "routeName": "SAMSONG_WITH_WONHEUNG", "shuttleDirection": "FROM_SCHOOL", "departureTime": "17:30"},
-    {"id": 46, "routeName": "SAMSONG_WITH_WONHEUNG", "shuttleDirection": "FROM_SCHOOL", "departureTime": "18:10"},
-    {"id": 47, "routeName": "SAMSONG_WITH_WONHEUNG", "shuttleDirection": "FROM_SCHOOL", "departureTime": "18:20"},
-    {"id": 48, "routeName": "SAMSONG", "shuttleDirection": "FROM_SCHOOL", "departureTime": "19:20"},
-  ], []);
 
   const availableRoutes = useMemo(() => {
     const routes = new Set<string>();
@@ -357,15 +322,13 @@ const ShuttlePage: React.FC = () => {
             padding: '10px 0',
             border: 'none',
             background: currentTab === 'TO_SCHOOL' ? '#007bff' : '#f0f0f0',
-            color: currentTab === 'TO_SCHOOL' ? 'white' : 'black',
+            color: currentTab === 'TO_SCHOOL' ? 'white' : '#333',
             cursor: 'pointer',
-            fontSize: '1.1em',
             borderRadius: '5px 0 0 5px',
+            fontSize: '1em',
+            fontWeight: 'bold',
           }}
-          onClick={() => {
-            setCurrentTab('TO_SCHOOL');
-            setSelectedRoute(null);
-          }}
+          onClick={() => setCurrentTab('TO_SCHOOL')}
         >
           {t.toSchool}
         </button>
@@ -375,23 +338,22 @@ const ShuttlePage: React.FC = () => {
             padding: '10px 0',
             border: 'none',
             background: currentTab === 'FROM_SCHOOL' ? '#007bff' : '#f0f0f0',
-            color: currentTab === 'FROM_SCHOOL' ? 'white' : 'black',
+            color: currentTab === 'FROM_SCHOOL' ? 'white' : '#333',
             cursor: 'pointer',
-            fontSize: '1.1em',
             borderRadius: '0 5px 5px 0',
+            fontSize: '1em',
+            fontWeight: 'bold',
           }}
-          onClick={() => {
-            setCurrentTab('FROM_SCHOOL');
-            setSelectedRoute(null);
-          }}
+          onClick={() => setCurrentTab('FROM_SCHOOL')}
         >
           {t.fromSchool}
         </button>
       </div>
 
       {/* 노선도 선택 드롭다운 */}
-      <div style={{ marginBottom: '20px', width: '100%' }}>
+      <div style={{ marginBottom: '20px' }}>
         <select
+          key={currentTab}
           style={{
             width: '100%',
             padding: '10px',
@@ -399,6 +361,7 @@ const ShuttlePage: React.FC = () => {
             borderRadius: '5px',
             border: '1px solid #ccc',
           }}
+          value={selectedRoute || t.allRoutes}
           onChange={(e) => setSelectedRoute(e.target.value === t.allRoutes ? null : e.target.value)}>
           <option value={t.allRoutes}>{t.allRoutes}</option>
           {availableRoutes.map(route => (
@@ -406,7 +369,7 @@ const ShuttlePage: React.FC = () => {
               {route === 'BAEKSEOK' && currentTab === 'FROM_SCHOOL' 
                 ? language === 'en' 
                   ? 'Baekseok (via Daegok)'
-                  : '백석(대곡 경유)'
+                  : '백석 (대곡 경유)'
                 : t[route.toLowerCase()] || route}
             </option>
           ))}

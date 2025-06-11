@@ -80,18 +80,18 @@ const SignupPage: React.FC = () => {
       <form onSubmit={handleSubmit} style={{ width: '100%', maxWidth: 400 }}>
         {/* 닉네임 입력 */}
         <div style={{ marginBottom: 16 }}>
-          <label htmlFor="nickname" style={{ display: 'block', marginBottom: 8 }}>
-            닉네임
-          </label>
+          <label htmlFor="nickname" style={{ display: 'block', marginBottom: '8px', fontWeight: 'bold' }}>닉네임</label>
           <input
             id="nickname"
             type="text"
             value={nickname}
             onChange={(e) => setNickname(e.target.value)}
+            placeholder="닉네임을 입력하세요"
             style={{
               width: '100%',
-              padding: '8px 12px',
-              borderRadius: 4,
+              padding: '12px',
+              fontSize: '16px',
+              borderRadius: '8px',
               border: '1px solid #ddd',
             }}
             required
@@ -100,19 +100,19 @@ const SignupPage: React.FC = () => {
 
         {/* 한 줄 소개 입력 */}
         <div style={{ marginBottom: 24 }}>
-          <label htmlFor="introduction" style={{ display: 'block', marginBottom: 8 }}>
-            한 줄 소개
-          </label>
+          <label htmlFor="introduction" style={{ display: 'block', marginBottom: '8px', fontWeight: 'bold' }}>한 줄 소개</label>
           <textarea
             id="introduction"
             value={introduction}
             onChange={(e) => setIntroduction(e.target.value)}
+            placeholder="셔틀요정에게 당신을 소개해주세요 🧚‍♂️"
             style={{
               width: '100%',
-              padding: '8px 12px',
-              borderRadius: 4,
+              padding: '12px',
+              fontSize: '16px',
+              borderRadius: '8px',
               border: '1px solid #ddd',
-              minHeight: 100,
+              minHeight: '80px',
               resize: 'vertical',
             }}
             required
