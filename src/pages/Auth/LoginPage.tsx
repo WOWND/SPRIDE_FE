@@ -127,7 +127,7 @@ const LoginPage: React.FC<LoginPageProps> = ({ onKakaoLogin, onGoogleLogin, onCl
           boxSizing: 'border-box',
           fontFamily: 'Pretendard', // 폰트 적용
         }}
-        onClick={handleGoogleLogin}
+        //onClick={handleGoogleLogin} //구글 로그인 비활성화
       >
          {/* 로고와 텍스트를 감싸는 flex 컨테이너 */}
         <div style={{ display: 'flex', alignItems: 'center' }}>
