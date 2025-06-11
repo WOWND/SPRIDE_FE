@@ -64,4 +64,14 @@ export interface TranslationKeys {
   취소: string;
   등록_중: string;
   등록: string;
+  // Taxi Detail Page
+  댓글_내용을_입력해주세요: string;
+  알_수_없는_오류: string;
+  댓글_등록_요청_중_오류_발생: string;
+  로딩_중: string;
+  목록으로: string;
+  댓글: string;
+  아직_댓글이_없습니다: string;
+  댓글_작성: string;
+  댓글을_입력하세요: string;
 } 

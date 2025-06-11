@@ -64,5 +64,16 @@ export default {
   예_2명_구해요_짐_많으신_분_환영합니다: "e.g. Looking for 2 more people, welcome those with lots of luggage.",
   취소: "Cancel",
   등록_중: "Registering...",
-  등록: "Register"
+  등록: "Register",
+
+  // Taxi Detail Page
+  댓글_내용을_입력해주세요: "Please enter comment content.",
+  알_수_없는_오류: "Unknown error",
+  댓글_등록_요청_중_오류_발생: "Error occurred during comment registration request.",
+  로딩_중: "Loading...",
+  목록으로: "Back to list",
+  댓글: "Comments",
+  아직_댓글이_없습니다: "No comments yet.",
+  댓글_작성: "Write a comment",
+  댓글을_입력하세요: "Enter your comment."
 }; 
