@@ -53,4 +53,15 @@ export interface TranslationKeys {
   submitButton: string;
   profileUpdateSuccess: string;
   profileUpdateFail: string;
+  // Taxi Registration Modal
+  모집_내용을_입력해주세요: string;
+  택시팟_등록에_실패했습니다: string;
+  택시팟_모집하기: string;
+  방향: string;
+  노선: string;
+  모집_내용: string;
+  예_2명_구해요_짐_많으신_분_환영합니다: string;
+  취소: string;
+  등록_중: string;
+  등록: string;
 } 

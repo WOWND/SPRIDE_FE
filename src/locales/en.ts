@@ -53,4 +53,16 @@ export default {
   submitButton: "Submit",
   profileUpdateSuccess: "Profile information updated successfully.",
   profileUpdateFail: "Failed to update profile information.",
+
+  // Taxi Registration Modal
+  모집_내용을_입력해주세요: "Please enter recruitment details.",
+  택시팟_등록에_실패했습니다: "Failed to register taxipod.",
+  택시팟_모집하기: "Recruit Taxi Pod",
+  방향: "Direction",
+  노선: "Route",
+  모집_내용: "Recruitment Details",
+  예_2명_구해요_짐_많으신_분_환영합니다: "e.g. Looking for 2 more people, welcome those with lots of luggage.",
+  취소: "Cancel",
+  등록_중: "Registering...",
+  등록: "Register"
 }; 

@@ -10,6 +10,7 @@ import TaxiPage from '../pages/Taxi/TaxiPage';
 import LostPage from '../pages/Lost/LostPage';
 import ShuttleDetailPage from '../pages/Shuttle/ShuttleDetailPage';
 import ProtectedRoute from './ProtectedRoute';
+import TaxiDetailPage from '../pages/Taxi/TaxiDetailPage';
 
 const AppRouter: React.FC = () => {
   return (
@@ -30,6 +31,7 @@ const AppRouter: React.FC = () => {
             }
           />
           <Route path="taxi" element={<TaxiPage />} />
+          <Route path="taxi/:id" element={<TaxiDetailPage />} />
           <Route path="lost" element={<LostPage />} />
           <Route path="shuttle/:id" element={<ShuttleDetailPage />} />
         </Route>
