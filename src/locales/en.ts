@@ -61,7 +61,7 @@ export default {
   방향: "Direction",
   노선: "Route",
   모집_내용: "Recruitment Details",
-  예_2명_구해요_짐_많으신_분_환영합니다: "e.g. Looking for 2 more people, welcome those with lots of luggage.",
+  예_2명_구해요_짐_많으신_분_환영합니다: "e.g. Looking for 2 more people.",
   취소: "Cancel",
   등록_중: "Registering...",
   등록: "Register",

@@ -207,7 +207,7 @@ const ShuttleInfoCard: React.FC<ShuttleInfoCardProps> = ({ info, onCardClick, on
             )}
           </>
         ) : (
-          '셔틀 현황을 불러오는 중...'
+          '운행 정보가 등록되지 않았습니다.'
         )}
       </div>
     </div>
