@@ -55,7 +55,7 @@ const ProfilePage: React.FC = () => {
     // 1. 메인 페이지로 이동 (replace 옵션 사용)
     navigate('/', { replace: true });
 
-    // 2. isLoggedIn 상태를 false로 변경
+    // 2. isAuthenticated 상태를 false로 변경
     auth.logout();
     
     // 3. 백엔드로 로그아웃 요청 (비동기로 처리)

@@ -7,9 +7,11 @@ const BottomNav: React.FC = () => {
   const t = useI18n();
   const navigate = useNavigate();
   const location = useLocation();
-  const { isLoggedIn, openLoginModal, setRedirectPath } = useAuth();
+  //const { isLoggedIn, openLoginModal, setRedirectPath } = useAuth();
+  const { isAuthenticated, openLoginModal, setRedirectPath, isLoadingAuth } = useAuth();
 
-  console.log('BottomNav - isLoggedIn:', isLoggedIn);
+
+  console.log('BottomNav - isLoggedIn:', isAuthenticated);
 
   const navs: { key: string; icon: string; labelKey: keyof typeof t; path: string }[] = [
     { key: 'shuttle', icon: '🚌', labelKey: 'navShuttle', path: '/' },
@@ -19,7 +21,7 @@ const BottomNav: React.FC = () => {
   ];
 
   const handleNavClick = (path: string) => {
-    if (path === '/profile' && !isLoggedIn) {
+    if (path === '/profile' && !isAuthenticated) {
       setRedirectPath(path);
       openLoginModal();
     } else {

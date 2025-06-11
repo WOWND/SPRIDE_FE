@@ -7,10 +7,10 @@ interface ProtectedRouteProps {
 }
 
 const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
-  const { isLoggedIn, openLoginModal, setRedirectPath, isLoadingAuth } = useAuth();
+  const { isAuthenticated, openLoginModal, setRedirectPath, isLoadingAuth } = useAuth();
   const currentPath = window.location.pathname; // 현재 경로 가져오기
 
-  console.log('ProtectedRoute - isLoggedIn:', isLoggedIn);
+  console.log('ProtectedRoute - isAuthenticated:', isAuthenticated);
   console.log('ProtectedRoute - isLoadingAuth:', isLoadingAuth);
 
   // 인증 상태 로딩 중이라면 null 반환 (로딩 완료 후 다시 렌더링)
@@ -20,14 +20,14 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
 
   // 로그인되어 있지 않을 때 useEffect를 사용하여 모달 열기
   useEffect(() => {
-    if (!isLoggedIn) {
+    if (!isAuthenticated) {
       setRedirectPath(currentPath);
       openLoginModal();
     }
-  }, [isLoggedIn, currentPath, setRedirectPath, openLoginModal]);
+  }, [isAuthenticated, currentPath, setRedirectPath, openLoginModal]);
 
   // 로그인되어 있지 않으면 null 반환 (모달이 열린 상태)
-  if (!isLoggedIn) {
+  if (!isAuthenticated) {
     return null;
   }
 
