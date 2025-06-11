@@ -18,6 +18,13 @@ interface NoticeItem {
   content: string;
 }
 
+interface ShuttleStatusData {
+  id: number;
+  crowdLevel: string; // 사용자에게 enum 형식 받을 예정
+  status: string; // 사용자에게 enum 형식 받을 예정
+  time: string;
+}
+
 const ShuttlePage: React.FC = () => {
   const t = useI18n();
   const { openLoginModal } = useAuth();
@@ -37,6 +44,7 @@ const ShuttlePage: React.FC = () => {
   const [isDragging, setIsDragging] = useState(false);
   const [currentTime, setCurrentTime] = useState('');
   const [showAllShuttles, setShowAllShuttles] = useState(false);
+  const [shuttleStatusData, setShuttleStatusData] = useState<Record<number, ShuttleStatusData>>({});
   const { language } = useLanguage();
 
   // 탭 변경 함수: 탭 상태를 업데이트하고 sessionStorage에 저장하며, 노선 선택을 초기화합니다.
@@ -195,13 +203,52 @@ const ShuttlePage: React.FC = () => {
       const shuttleMinutes = timeToMinutes(shuttle.departureTime);
       const isFutureTime = shuttleMinutes >= currentMinutes;
 
-      console.log(`[Shuttle Filter] Tab: ${currentTab}, Shuttle: ${shuttle.routeName}-${shuttle.shuttleDirection} at ${shuttle.departureTime} (${shuttleMinutes}min), Current Time: ${currentTime} (${currentMinutes}min), MatchesTab: ${matchesTab}, MatchesRoute: ${matchesRoute}, IsFuture: ${isFutureTime}, Result: ${matchesTab && matchesRoute && isFutureTime}`);
-
       return matchesTab && matchesRoute && isFutureTime;
     }).sort((a, b) => {
       return timeToMinutes(a.departureTime) - timeToMinutes(b.departureTime);
     });
   }, [allShuttles, currentTab, selectedRoute, currentTime]);
+
+  // 현재 보이는 셔틀들의 ID를 가져와 API 호출
+  useEffect(() => {
+    const fetchShuttleStatus = async () => {
+      const displayedShuttleIds = filteredShuttles.slice(0, showAllShuttles ? undefined : 3).map(shuttle => shuttle.id);
+
+      if (displayedShuttleIds.length === 0) {
+        setShuttleStatusData({});
+        return;
+      }
+
+      try {
+        const serverUrl = import.meta.env.VITE_SERVER_URL || ''; // 환경 변수 불러오기
+        // GET 요청으로 변경: idList를 쿼리 파라미터로 전달
+        const queryParams = new URLSearchParams();
+        displayedShuttleIds.forEach(id => queryParams.append('idList', id.toString()));
+        const url = `${serverUrl}/api/shuttles?${queryParams.toString()}`;
+
+        const response = await fetch(url, {
+          method: 'GET',
+          // GET 요청에서는 Content-Type 헤더와 body가 필요 없습니다.
+        });
+
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        const data: ShuttleStatusData[] = await response.json();
+        const newStatusData: Record<number, ShuttleStatusData> = {};
+        data.forEach(item => {
+          newStatusData[item.id] = item;
+        });
+        setShuttleStatusData(newStatusData);
+      } catch (error) {
+        console.error("셔틀 현황 정보를 가져오는 데 실패했습니다:", error);
+        // 오류 처리: 예를 들어, 사용자에게 메시지를 표시하거나 재시도 로직 추가
+      }
+    };
+
+    fetchShuttleStatus();
+  }, [filteredShuttles, showAllShuttles]); // 필터링된 셔틀 목록 또는 '더보기' 상태 변경 시 재실행
 
   const handleCardClick = (id: number) => {
     navigate(`/shuttle/${id}`);
@@ -225,7 +272,7 @@ const ShuttlePage: React.FC = () => {
   };
 
   return (
-    <div style={{ padding: 24, paddingBottom: 80 }}>
+    <div style={{ padding: 13, paddingBottom: 80 }}>
       {/* 공지사항 */}
       {notices.length > 0 && (
         <div
@@ -383,15 +430,21 @@ const ShuttlePage: React.FC = () => {
         </div>
       ) : (
         <>
-          {filteredShuttles.slice(0, showAllShuttles ? undefined : 3).map((shuttle, index) => (
-            <ShuttleInfoCard
-              key={shuttle.id}
-              info={shuttle}
-              onCardClick={handleCardClick}
-              onHelpClick={handleHelpClick}
-              showCountdown={!showAllShuttles && index < 3}
-            />
-          ))}
+          {filteredShuttles.slice(0, showAllShuttles ? undefined : 3).map((shuttle, index) => {
+            const statusInfo = shuttleStatusData[shuttle.id];
+            return (
+              <ShuttleInfoCard
+                key={shuttle.id}
+                info={shuttle}
+                onCardClick={handleCardClick}
+                onHelpClick={handleHelpClick}
+                showCountdown={!showAllShuttles && index < 3}
+                crowdLevel={statusInfo?.crowdLevel}
+                status={statusInfo?.status}
+                updateTime={statusInfo?.time}
+              />
+            );
+          })}
           {filteredShuttles.length > 3 && !showAllShuttles && (
             <button
               onClick={() => setShowAllShuttles(true)}

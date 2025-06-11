@@ -14,12 +14,77 @@ interface ShuttleInfoCardProps {
   onCardClick: (id: number) => void;
   onHelpClick: (id: number) => void;
   showCountdown?: boolean;
+  crowdLevel?: string;
+  status?: string;
+  updateTime?: string;
 }
 
-const ShuttleInfoCard: React.FC<ShuttleInfoCardProps> = ({ info, onCardClick, onHelpClick, showCountdown = false }) => {
+const ShuttleInfoCard: React.FC<ShuttleInfoCardProps> = ({ info, onCardClick, onHelpClick, showCountdown = false, crowdLevel, status, updateTime }) => {
   const t = useI18n();
   const { language } = useLanguage();
   const [remainingTime, setRemainingTime] = useState<string>('');
+
+  // CrowdLevel에 따른 배경색 매핑 함수
+  const getBackgroundColorByCrowdLevel = (level?: string): string => {
+    if (!level) return 'rgba(255, 255, 255, 0.5)'; // 기본 투명한 흰색
+    switch (level) {
+      case 'EMPTY': return '#e0ffe0'; // 아주 여유 - 연한 초록
+      case 'LIGHT': return '#ccffcc'; // 여유 - 연한 초록
+      case 'NORMAL': return '#e0f2f7'; // 보통 - 연한 파랑
+      case 'LITTLE_CROWDED': return '#ffe0b2'; // 혼잡 - 연한 주황
+      case 'VERY_CROWDED': return '#ffccbc'; // 매우 혼잡 - 연한 빨강
+      case 'FULL': return '#ffaaaa'; // 만석 - 좀 더 진한 빨강
+      default: return 'rgba(255, 255, 255, 0.5)';
+    }
+  };
+
+  // CrowdLevel 매핑 함수
+  const getCrowdLevelDisplay = (level?: string): string => {
+    if (!level) return '';
+    const crowdMap: { [key: string]: { ko: string; en: string } } = {
+      EMPTY: { ko: '🟢 아주 여유', en: '🟢 Empty' },
+      LIGHT: { ko: '🟢 여유', en: '🟢 Light' },
+      NORMAL: { ko: '🟡 보통', en: '🟡 Normal' },
+      LITTLE_CROWDED: { ko: '🟠 혼잡', en: '🟠 Slightly Crowded' },
+      VERY_CROWDED: { ko: '🔴 매우 혼잡', en: '🔴 Very Crowded' },
+      FULL: { ko: '❌ 만석', en: '❌ Full' },
+    };
+    return crowdMap[level]?.[language] || level;
+  };
+
+  // Status 매핑 함수
+  const getStatusDisplay = (statusVal?: string): string => {
+    if (!statusVal) return '';
+    const statusMap: { [key: string]: { ko: string; en: string } } = {
+      WAITING: { ko: '대기 중', en: 'Waiting' },
+      BOARDING: { ko: '탑승 중', en: 'Boarding' },
+      DEPARTED: { ko: '출발함', en: 'Departed' },
+    };
+    return statusMap[statusVal]?.[language] || statusVal;
+  };
+
+  // 업데이트 시간 계산 및 표시 함수
+  const getUpdateTimeDisplay = (timeString?: string): string => {
+    if (!timeString) return '';
+
+    const [hours, minutes, seconds] = timeString.split(':').map(Number);
+    const providedDate = new Date();
+    providedDate.setHours(hours, minutes, seconds, 0);
+
+    const now = new Date();
+    const diffMillis = now.getTime() - providedDate.getTime();
+    const diffMinutes = Math.floor(diffMillis / (1000 * 60));
+
+    if (diffMinutes < 1) {
+      return language === 'en' ? 'Updated Just now' : '방금 전 정보';
+    } else if (diffMinutes < 60) {
+      return language === 'en' ? `Updated ${diffMinutes} min ago` : `${diffMinutes}분 전 정보`;
+    } else {
+      const diffHours = Math.floor(diffMinutes / 60);
+      const remainingMins = diffMinutes % 60;
+      return language === 'en' ? `Updated ${diffHours} hr ${remainingMins} min ago` : `${diffHours}시간 ${remainingMins}분 전 정보`;
+    }
+  };
 
   useEffect(() => {
     if (!showCountdown) return;
@@ -126,11 +191,24 @@ const ShuttleInfoCard: React.FC<ShuttleInfoCardProps> = ({ info, onCardClick, on
         fontSize: 16,
         color: '#666',
         padding: '8px 0',
-        backgroundColor: 'rgba(255, 255, 255, 0.5)',
+        backgroundColor: getBackgroundColorByCrowdLevel(crowdLevel),
         borderRadius: 4,
         textAlign: 'center'
       }}>
-        {language === 'en' ? 'Joongbu University' : '중부대학교'} 셔틀 현황
+        {crowdLevel && status ? (
+          <>
+            <span style={{ fontWeight: 'bold' }}>{getCrowdLevelDisplay(crowdLevel)}</span> 
+            <span> / </span>
+            <span style={{ fontWeight: 'bold' }}>{getStatusDisplay(status)}</span>
+            {updateTime && (
+              <div style={{ fontSize: 12, color: '#888', marginTop: '4px' }}>
+                ({getUpdateTimeDisplay(updateTime)}) 
+              </div>
+            )}
+          </>
+        ) : (
+          '셔틀 현황을 불러오는 중...'
+        )}
       </div>
     </div>
   );
