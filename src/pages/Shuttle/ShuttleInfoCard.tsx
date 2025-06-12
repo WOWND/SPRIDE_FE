@@ -207,7 +207,8 @@ const ShuttleInfoCard: React.FC<ShuttleInfoCardProps> = ({ info, onCardClick, on
             )}
           </>
         ) : (
-          '운행 정보가 등록되지 않았습니다.'
+          //'운행 정보가 등록되지 않았습니다.'
+          `${language === 'en' ? 'No service information available' : '운행 정보가 등록되지 않았습니다.'}`
         )}
       </div>
     </div>

@@ -167,7 +167,7 @@ const ShuttleDetailPage: React.FC = () => {
       </h2>
       <div style={{ fontSize: 16, lineHeight: 1.5, marginBottom: 32 }}>
         <p style={{ marginBottom: 8 }}>{getDirectionDisplay(shuttleInfo.shuttleDirection, shuttleInfo.routeName)}</p>
-        <p>출발 시간: {shuttleInfo.departureTime}</p>
+        <p>{language === 'en' ? 'Departs at: ' : '출발 시간: '}{shuttleInfo.departureTime}</p>
       </div>
 
       <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
@@ -198,7 +198,7 @@ const ShuttleDetailPage: React.FC = () => {
           style={{ background: '#f5f5f5', border: 'none', borderRadius: 4, padding: '12px 0', fontSize: 18, cursor: 'pointer' }}
           onClick={() => navigate(-1)}
         >
-          뒤로가기
+          {language === 'en' ? 'Back' : '뒤로가기'}
         </button>
       </div>
 
